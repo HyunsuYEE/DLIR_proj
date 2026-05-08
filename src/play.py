@@ -1,10 +1,12 @@
 import argparse
+import random
 from pathlib import Path
 from typing import Tuple
 
 from huggingface_hub import hf_hub_download
 from hydra import compose, initialize
 from hydra.utils import instantiate
+import numpy as np
 from omegaconf import DictConfig, OmegaConf
 import torch
 from torch.utils.data import DataLoader
@@ -14,7 +16,8 @@ from coroutines.collector import make_collector, NumToCollect
 from data import BatchSampler, collate_segments_to_batch, Dataset
 from envs import make_atari_env, WorldModelEnv
 from game import ActionNames, DatasetEnv, Game, get_keymap_and_action_names, Keymap, NamedEnv, PlayEnv
-from utils import get_path_agent_ckpt, prompt_atari_game
+from headless_run import load_actions_from_json, make_noop_actions, run_headless
+from utils import ATARI_100K_GAMES, get_path_agent_ckpt, prompt_atari_game
 
 
 OmegaConf.register_new_resolver("eval", eval)
@@ -36,6 +39,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--fps", type=int, default=15, help="Frame rate.")
     parser.add_argument("--size", type=int, default=640, help="Window size.")
     parser.add_argument("--no-header", action="store_true")
+    parser.add_argument("--actions", type=str, default=None, help="Path to a JSON file with an action sequence (list of action names or ints). Activates headless mode and writes a video.")
+    parser.add_argument("--num-frames", type=int, default=None, help="Run headless for N additional no-op frames. Combined with --actions, pads after the JSON sequence.")
+    parser.add_argument("-o", "--output", type=str, default="out.mp4", help="Output video path (headless mode only).")
+    parser.add_argument("--game", type=str, default=None, choices=ATARI_100K_GAMES, help="Atari game name. Skips the interactive prompt when used with --pretrained (useful in headless mode).")
+    parser.add_argument("--horizon", type=int, default=None, help="World model imagination horizon (steps before trunc). Overrides config / pretrained default (50). Image quality degrades as this grows.")
+    parser.add_argument("--seed", type=int, default=None, help="Seed for torch / numpy / random. Reproduces initial conditioning batch + diffusion noise + reward/end sampling.")
     return parser.parse_args()
 
 
@@ -71,7 +80,7 @@ def prepare_dataset_mode(cfg: DictConfig) -> Tuple[DatasetEnv, Keymap, ActionNam
 def prepare_play_mode(cfg: DictConfig, args: argparse.Namespace) -> Tuple[PlayEnv, Keymap, ActionNames]:
     # Checkpoint
     if args.pretrained:
-        name = prompt_atari_game()
+        name = args.game if args.game is not None else prompt_atari_game()
         path_ckpt = download(f"atari_100k/models/{name}.pt")
 
         # Override config
@@ -135,11 +144,45 @@ def main():
     if not ok:
         return
 
+    if args.seed is not None:
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        torch.cuda.manual_seed_all(args.seed)
+        print(f"Seeded RNGs with {args.seed}")
+
     with initialize(version_base="1.3", config_path="../config"):
         cfg = compose(config_name="trainer")
 
     env, keymap = prepare_dataset_mode(cfg) if args.dataset_mode else prepare_play_mode(cfg, args)
     size = (args.size // cfg.env.train.size) * cfg.env.train.size  # window size
+
+    headless = args.actions is not None or args.num_frames is not None
+    if headless:
+        if args.dataset_mode:
+            print("Error: headless mode (--actions / --num-frames) is not supported in --dataset-mode.")
+            return
+        actions: list = []
+        if args.actions is not None:
+            actions.extend(load_actions_from_json(Path(args.actions), env.action_names))
+        if args.num_frames is not None:
+            actions.extend(make_noop_actions(args.num_frames))
+
+        wm_env = next((e for name, e in env.envs if name == "wm"), None)
+        if wm_env is not None:
+            desired_horizon = args.horizon if args.horizon is not None else len(actions) + 10
+            if wm_env.horizon < desired_horizon:
+                print(f"Bumping world-model horizon: {wm_env.horizon} -> {desired_horizon}")
+                wm_env.horizon = desired_horizon
+
+        run_headless(env, actions, Path(args.output), fps=args.fps, size_hw=(size, size))
+        return
+
+    if args.horizon is not None:
+        wm_env = next((e for name, e in env.envs if name == "wm"), None)
+        if wm_env is not None:
+            wm_env.horizon = args.horizon
+
     game = Game(env, keymap, (size, size), fps=args.fps, verbose=not args.no_header)
     game.run()
 
