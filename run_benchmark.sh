@@ -3,9 +3,34 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
+default_prg_risk_threshold="0.5"
+
+log_path_for_mode() {
+  local mode="$1"
+  shift || true
+
+  if [[ "$mode" != "prg" ]]; then
+    echo "out_${mode}.log"
+    return 0
+  fi
+
+  local prg_risk_threshold="$default_prg_risk_threshold"
+  for override in "$@"; do
+    case "$override" in
+      world_model_env.diffusion_sampler.prg_risk_threshold=*)
+        prg_risk_threshold="${override#*=}"
+        ;;
+    esac
+  done
+  local prg_threshold_suffix="${prg_risk_threshold//[^[:alnum:]._-]/_}"
+  echo "out_${mode}_threshold_${prg_threshold_suffix}.log"
+}
+
 extract_metrics_summary() {
   local mode="$1"
-  local log_path="out_${mode}.log"
+  shift || true
+  local log_path
+  log_path="$(log_path_for_mode "$mode" "$@")"
 
   echo
   echo "===== ${mode} ====="
@@ -48,7 +73,7 @@ echo "Running PRG benchmark..."
 
 echo
 echo "Benchmark summaries"
-extract_metrics_summary "base"
-extract_metrics_summary "conservative"
-extract_metrics_summary "aggressive"
-extract_metrics_summary "prg"
+extract_metrics_summary "base" "$@"
+extract_metrics_summary "conservative" "$@"
+extract_metrics_summary "aggressive" "$@"
+extract_metrics_summary "prg" "$@"

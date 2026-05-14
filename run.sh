@@ -31,6 +31,8 @@ fi
 mode="$1"
 shift
 
+default_prg_risk_threshold="0.5"
+
 case "$mode" in
   --base)
     mode_name="base"
@@ -66,7 +68,7 @@ case "$mode" in
       "world_model_env.diffusion_sampler.dpm_solver_method=multistep"
       "world_model_env.diffusion_sampler.teacache_rel_l1_thresh=10.0"
       "world_model_env.diffusion_sampler.teacache_force_last=false"
-      "world_model_env.diffusion_sampler.prg_risk_threshold=0.5"
+      "world_model_env.diffusion_sampler.prg_risk_threshold=${default_prg_risk_threshold}"
       "world_model_env.diffusion_sampler.prg_depth_weight=1.0"
       "world_model_env.diffusion_sampler.prg_policy_weight=1.0"
       "world_model_env.diffusion_sampler.prg_proxy_weight=1.0"
@@ -84,6 +86,18 @@ case "$mode" in
 esac
 
 log_path="out_${mode_name}.log"
+if [[ "$mode_name" == "prg" ]]; then
+  prg_risk_threshold="$default_prg_risk_threshold"
+  for override in "$@"; do
+    case "$override" in
+      world_model_env.diffusion_sampler.prg_risk_threshold=*)
+        prg_risk_threshold="${override#*=}"
+        ;;
+    esac
+  done
+  prg_threshold_suffix="${prg_risk_threshold//[^[:alnum:]._-]/_}"
+  log_path="out_${mode_name}_threshold_${prg_threshold_suffix}.log"
+fi
 
 python src/main.py \
   env.train.id=BreakoutNoFrameskip-v4 \
