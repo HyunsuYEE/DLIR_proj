@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..blocks import Conv3x3, FourierFeatures, GroupNorm, UNet
+from .teacache import TeaCacheState, apply_teacache_residual
 
 
 @dataclass
@@ -47,3 +48,42 @@ class InnerModel(nn.Module):
         x, _, _ = self.unet(x, cond)
         x = self.conv_out(F.silu(self.norm_out(x)))
         return x
+
+    def forward_teacache(
+        self,
+        noisy_next_obs: Tensor,
+        c_noise: Tensor,
+        obs: Tensor,
+        act: Tensor,
+        teacache_state: TeaCacheState,
+        step_index: int,
+        num_steps: int,
+    ) -> Tensor:
+        if not teacache_state.enabled:
+            return self.forward(noisy_next_obs, c_noise, obs, act)
+
+        cond = self.cond_proj(self.noise_emb(c_noise) + self.act_emb(act))
+        x = self.conv_in(torch.cat((obs, noisy_next_obs), dim=1))
+        proxy = self._teacache_proxy(x, cond)
+
+        def run_unet(inp: Tensor, conditioning: Tensor) -> Tensor:
+            out, _, _ = self.unet(inp, conditioning)
+            return out
+
+        x = apply_teacache_residual(
+            x=x,
+            cond=cond,
+            proxy=proxy,
+            expensive_block=run_unet,
+            state=teacache_state,
+            step_index=step_index,
+            num_steps=num_steps,
+        )
+        x = self.conv_out(F.silu(self.norm_out(x)))
+        return x
+
+    @staticmethod
+    def _teacache_proxy(x: Tensor, cond: Tensor) -> Tensor:
+        spatial_mean = x.mean(dim=(2, 3))
+        spatial_std = x.std(dim=(2, 3), unbiased=False)
+        return torch.cat((cond, spatial_mean, spatial_std), dim=1)

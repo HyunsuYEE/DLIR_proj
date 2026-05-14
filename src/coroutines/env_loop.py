@@ -7,6 +7,7 @@ from torch.distributions.categorical import Categorical
 
 from . import coroutine
 from envs import TorchEnv, WorldModelEnv
+from models.prg import normalized_policy_entropy
 
 
 @coroutine
@@ -34,7 +35,11 @@ def make_env_loop(
             if random.random() < epsilon:
                 act = torch.randint(low=0, high=env.num_actions, size=(obs.size(0),), device=obs.device)
 
-            next_obs, rew, end, trunc, info = env.step(act)
+            if isinstance(env, WorldModelEnv) and env.uses_prg:
+                entropy_norm = normalized_policy_entropy(logits_act).detach()
+                next_obs, rew, end, trunc, info = env.step(act, policy_entropy_norm=entropy_norm)
+            else:
+                next_obs, rew, end, trunc, info = env.step(act)
 
             if n > 0:
                 val_bootstrap = val.detach().clone()

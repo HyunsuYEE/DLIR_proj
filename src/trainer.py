@@ -1,4 +1,5 @@
 from functools import partial
+import json
 from pathlib import Path
 import shutil
 import time
@@ -63,6 +64,8 @@ class Trainer(StateDictMixin):
         # Flags
         self._is_static_dataset = cfg.static_dataset.path is not None
         self._is_model_free = cfg.training.model_free
+        self._latest_actor_critic_timing = None
+        self._latest_final_return = None
 
         # Checkpointing
         self._path_ckpt_dir = Path("checkpoints")
@@ -264,7 +267,10 @@ class Trainer(StateDictMixin):
 
         # Last collect
         if self._rank == 0 and not self._is_static_dataset:
-            wandb_log(self.collect_test(final=True), self.epoch)
+            final_logs = self.collect_test(final=True)
+            wandb_log(final_logs, self.epoch)
+            self._latest_final_return = next((d for d in final_logs if "final_return_mean" in d), None)
+            self.print_metrics_summary()
 
     def collect_initial_dataset(self) -> Tuple[int, Logs]:
         print("\nInitial collect\n")
@@ -360,6 +366,10 @@ class Trainer(StateDictMixin):
 
         num_steps = cfg.grad_acc_steps * steps
 
+        if self._device.type == "cuda":
+            torch.cuda.synchronize(self._device)
+        t_train_start = time.perf_counter()
+
         for i in trange(num_steps, desc=f"Training {name}", disable=self._rank > 0):
             batch = next(data_iterator).to(self._device) if data_iterator is not None else None
             loss, metrics = model(batch) if batch is not None else model()
@@ -383,7 +393,85 @@ class Trainer(StateDictMixin):
 
             to_log.append(metrics)
 
+        if self._device.type == "cuda":
+            torch.cuda.synchronize(self._device)
+        total_train_s = time.perf_counter() - t_train_start
+
         process_confusion_matrices_if_any_and_compute_classification_metrics(to_log)
+
+        if self._rank == 0 and to_log and "diffusion_inference_total_s" in to_log[0]:
+            total_d_s = sum(d.get("diffusion_inference_total_s", 0.0) for d in to_log)
+            total_d_calls = sum(d.get("diffusion_inference_calls", 0.0) for d in to_log)
+            total_d_evals = sum(d.get("denoiser_evals", 0.0) for d in to_log)
+            total_tc_full = sum(d.get("teacache_full_evals", 0.0) for d in to_log)
+            total_tc_hits = sum(d.get("teacache_cache_hits", 0.0) for d in to_log)
+            total_prg_aggr = sum(d.get("prg_aggressive_calls", 0.0) for d in to_log)
+            total_prg_cons = sum(d.get("prg_conservative_calls", 0.0) for d in to_log)
+            total_prg_risk = sum(d.get("prg_risk_score_sum", 0.0) for d in to_log)
+            total_prg_proxy = sum(d.get("prg_proxy_margin_sum", 0.0) for d in to_log)
+            total_r_s = sum(d.get("rew_end_inference_total_s", 0.0) for d in to_log)
+            total_r_calls = sum(d.get("rew_end_inference_calls", 0.0) for d in to_log)
+            d_per = (1000.0 * total_d_s / total_d_calls) if total_d_calls > 0 else 0.0
+            d_per_eval = (1000.0 * total_d_s / total_d_evals) if total_d_evals > 0 else 0.0
+            tc_total = total_tc_full + total_tc_hits
+            tc_hit_rate = (total_tc_hits / tc_total) if tc_total > 0 else 0.0
+            prg_total = total_prg_aggr + total_prg_cons
+            prg_aggr_rate = (total_prg_aggr / prg_total) if prg_total > 0 else 0.0
+            prg_mean_risk = (total_prg_risk / prg_total) if prg_total > 0 else 0.0
+            prg_mean_proxy = (total_prg_proxy / prg_total) if prg_total > 0 else 0.0
+            r_per = (1000.0 * total_r_s / total_r_calls) if total_r_calls > 0 else 0.0
+            d_pct = (100.0 * total_d_s / total_train_s) if total_train_s > 0 else 0.0
+            r_pct = (100.0 * total_r_s / total_train_s) if total_train_s > 0 else 0.0
+            other_s = max(0.0, total_train_s - total_d_s - total_r_s)
+            other_pct = 100.0 - d_pct - r_pct
+            if name == "actor_critic":
+                self._latest_actor_critic_timing = {
+                    "actor_critic_total_s": float(total_train_s),
+                    "diffusion_total_s": float(total_d_s),
+                    "diffusion_pct": float(d_pct),
+                    "diffusion_ms_per_step": float(d_per),
+                    "diffusion_calls": int(total_d_calls),
+                    "denoiser_evals": int(total_d_evals),
+                    "denoiser_evals_per_diffusion_call": float(total_d_evals / total_d_calls) if total_d_calls > 0 else 0.0,
+                    "diffusion_ms_per_denoiser_eval": float(d_per_eval),
+                    "teacache_full_evals": int(total_tc_full),
+                    "teacache_cache_hits": int(total_tc_hits),
+                    "teacache_cache_hit_rate": float(tc_hit_rate),
+                    "prg_aggressive_calls": int(total_prg_aggr),
+                    "prg_conservative_calls": int(total_prg_cons),
+                    "prg_aggressive_rate": float(prg_aggr_rate),
+                    "prg_mean_risk_score": float(prg_mean_risk),
+                    "prg_mean_proxy_margin": float(prg_mean_proxy),
+                    "rew_end_total_s": float(total_r_s),
+                    "rew_end_pct": float(r_pct),
+                    "rew_end_ms_per_step": float(r_per),
+                    "rew_end_calls": int(total_r_calls),
+                    "other_total_s": float(other_s),
+                    "other_pct": float(other_pct),
+                }
+            print(
+                f"  [{name}] total {total_train_s:.2f}s | "
+                f"diffusion {total_d_s:.2f}s ({d_pct:.1f}%, {d_per:.2f} ms/step over {int(total_d_calls)} calls, "
+                f"{int(total_d_evals)} denoiser evals) | "
+                f"rew_end {total_r_s:.2f}s ({r_pct:.1f}%, {r_per:.2f} ms/step over {int(total_r_calls)} calls) | "
+                f"other {other_s:.2f}s ({other_pct:.1f}%)"
+            )
+            if tc_total > 0:
+                print(
+                    f"  [{name}] TeaCache full {int(total_tc_full)} | "
+                    f"cache hits {int(total_tc_hits)} | hit rate {100.0 * tc_hit_rate:.1f}%"
+                )
+            if prg_total > 0:
+                print(
+                    f"  [{name}] PRG aggressive {int(total_prg_aggr)} | "
+                    f"conservative {int(total_prg_cons)} | aggressive rate {100.0 * prg_aggr_rate:.1f}% | "
+                    f"risk {prg_mean_risk:.3f} | proxy margin {prg_mean_proxy:.3f}"
+                )
+            for d in to_log:
+                d["actor_critic_train_total_s"] = total_train_s
+                d["diffusion_inference_pct"] = d_pct
+                d["rew_end_inference_pct"] = r_pct
+
         to_log = [{f"{name}/train/{k}": v for k, v in d.items()} for d in to_log]
         return to_log
 
@@ -405,6 +493,45 @@ class Trainer(StateDictMixin):
         to_log = [{f"{name}/test/{k}": v for k, v in d.items()} for d in to_log]
         return to_log
 
+    def print_metrics_summary(self) -> None:
+        summary = {
+            **(self._latest_actor_critic_timing or {}),
+            **{
+                "final_return_mean": None,
+                "final_return_std": None,
+                "fvd": None,
+                "fvd_status": "not_implemented: this repository does not currently collect real/world-model videos or compute I3D-based FVD.",
+            },
+        }
+        if self._latest_final_return is not None:
+            summary["final_return_mean"] = float(self._latest_final_return["final_return_mean"])
+            summary["final_return_std"] = float(self._latest_final_return["final_return_std"])
+
+        print("\nMetrics summary")
+        print(f"  actor_critic_total_s : {format_metric(summary.get('actor_critic_total_s'), '.2f')}")
+        print(f"  diffusion_total_s    : {format_metric(summary.get('diffusion_total_s'), '.2f')}")
+        print(f"  diffusion_pct        : {format_metric(summary.get('diffusion_pct'), '.1f')}")
+        print(f"  diffusion_ms_per_step: {format_metric(summary.get('diffusion_ms_per_step'), '.2f')}")
+        print(f"  denoiser_evals       : {format_metric(summary.get('denoiser_evals'), '.0f')}")
+        print(f"  denoiser_evals/call  : {format_metric(summary.get('denoiser_evals_per_diffusion_call'), '.2f')}")
+        print(f"  diffusion_ms/eval    : {format_metric(summary.get('diffusion_ms_per_denoiser_eval'), '.2f')}")
+        if summary.get("teacache_full_evals", 0) or summary.get("teacache_cache_hits", 0):
+            print(f"  teacache_full_evals  : {format_metric(summary.get('teacache_full_evals'), '.0f')}")
+            print(f"  teacache_cache_hits  : {format_metric(summary.get('teacache_cache_hits'), '.0f')}")
+            print(f"  teacache_hit_rate    : {format_metric(100.0 * summary.get('teacache_cache_hit_rate', 0.0), '.1f')}%")
+        if summary.get("prg_aggressive_calls", 0) or summary.get("prg_conservative_calls", 0):
+            print(f"  prg_aggressive_calls : {format_metric(summary.get('prg_aggressive_calls'), '.0f')}")
+            print(f"  prg_conservative_calls: {format_metric(summary.get('prg_conservative_calls'), '.0f')}")
+            print(f"  prg_aggressive_rate  : {format_metric(100.0 * summary.get('prg_aggressive_rate', 0.0), '.1f')}%")
+            print(f"  prg_mean_risk_score  : {format_metric(summary.get('prg_mean_risk_score'), '.3f')}")
+            print(f"  prg_mean_proxy_margin: {format_metric(summary.get('prg_mean_proxy_margin'), '.3f')}")
+        print(f"  final_return_mean    : {format_metric(summary.get('final_return_mean'), '.4f')}")
+        print(f"  final_return_std     : {format_metric(summary.get('final_return_std'), '.4f')}")
+        print(f"  fvd                  : {format_metric(summary.get('fvd'), '.4f')}")
+        if summary.get("fvd") is None:
+            print(f"  fvd_status           : {summary['fvd_status']}")
+        Path("metrics_summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+
     def load_state_checkpoint(self) -> None:
         self.load_state_dict(torch.load(self._path_state_ckpt, map_location=self._device))
 
@@ -415,3 +542,7 @@ class Trainer(StateDictMixin):
             self.test_dataset.save_to_default_path()
             self._keep_agent_copies(self.agent.state_dict(), self.epoch)
             self._save_info_for_import_script(self.epoch)
+
+
+def format_metric(value, spec: str) -> str:
+    return "N/A" if value is None else format(value, spec)

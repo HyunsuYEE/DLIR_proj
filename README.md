@@ -4,6 +4,40 @@
 
 🌍 [Project Page](https://diamond-wm.github.io) • 🤓 [Paper](https://arxiv.org/pdf/2405.12399) • 𝕏 [Atari thread](https://x.com/EloiAlonso1/status/1793916382779982120) • 𝕏 [CSGO thread](https://x.com/EloiAlonso1/status/1844803606064611771) • 💬 [Discord](https://discord.gg/74vha5RWPg)
 
+## Acceleration Extensions in This Workspace
+
+- This fork keeps the original DIAMOND path as `base` and adds training-loop diffusion acceleration modes for comparison.
+- `conservative` uses the DPM-Solver-style sampler only; `aggressive` uses DPM-Solver-style sampling plus TeaCache residual reuse.
+- `prg` adds Probe-Calibrated Rollout Risk Gating signals to choose between conservative and aggressive rollout sampling online.
+
+Implemented features:
+
+- Quick benchmark scripts: `quick_run.sh`, `run.sh`, `run_benchmark.sh`, and `benchmark.sh`.
+- Metrics summary logging for actor-critic time, diffusion time, denoiser evals, final return, TeaCache hit rate, and PRG mode selection.
+- DPM-Solver-style EDM sampler, TeaCache residual caching, and PRG risk modules under `src/models/diffusion/` and `src/models/prg/`.
+- TDD coverage under `tests/dpm_solver/`, `tests/tea_cache/`, and `tests/prg/`.
+
+Run a single mode:
+
+```bash
+./run.sh --base
+./run.sh --conservative
+./run.sh --aggressive
+./run.sh --prg
+```
+
+Run all benchmark modes and print the four final summaries:
+
+```bash
+./benchmark.sh
+```
+
+Run tests:
+
+```bash
+./.venv/bin/python -m unittest discover -s tests -v
+```
+
 <div align='center'>
   RL agent playing in autoregressive imagination of Atari world models
   <br>

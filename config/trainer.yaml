@@ -69,11 +69,21 @@ world_model_env:
   num_batches_to_preload: 256
   diffusion_sampler:
     _target_: models.diffusion.DiffusionSamplerConfig
+    solver_type: euler_heun # euler_heun: original DIAMOND path, dpm_solver: conservative DPM-Solver path
     num_steps_denoising: 3
     sigma_min: 2e-3
     sigma_max: 5.0
     rho: 7
     order: 1  # 1: Euler, 2: Heun
+    dpm_solver_order: 2
+    dpm_solver_method: multistep
+    teacache_enabled: false
+    teacache_rel_l1_thresh: 0.2
+    teacache_force_last: true
+    prg_risk_threshold: 0.5
+    prg_depth_weight: 1.0
+    prg_policy_weight: 1.0
+    prg_proxy_weight: 1.0
     s_churn: 0.0  # Amount of stochasticity
     s_tmin: 0.0
     s_tmax: ${eval:'float("inf")'}

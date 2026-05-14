@@ -8,6 +8,7 @@ import torch.nn.functional as F
 
 from data import Batch
 from .inner_model import InnerModel, InnerModelConfig
+from .teacache import TeaCacheState
 from utils import LossAndLogs
 
 
@@ -75,6 +76,28 @@ class Denoiser(nn.Module):
         rescaled_obs = obs / self.cfg.sigma_data
         rescaled_noise = noisy_next_obs * cs.c_in
         return self.inner_model(rescaled_noise, cs.c_noise, rescaled_obs, act)
+
+    def compute_model_output_teacache(
+        self,
+        noisy_next_obs: Tensor,
+        obs: Tensor,
+        act: Tensor,
+        cs: Conditioners,
+        teacache_state: TeaCacheState,
+        step_index: int,
+        num_steps: int,
+    ) -> Tensor:
+        rescaled_obs = obs / self.cfg.sigma_data
+        rescaled_noise = noisy_next_obs * cs.c_in
+        return self.inner_model.forward_teacache(
+            rescaled_noise,
+            cs.c_noise,
+            rescaled_obs,
+            act,
+            teacache_state=teacache_state,
+            step_index=step_index,
+            num_steps=num_steps,
+        )
     
     @torch.no_grad()
     def wrap_model_output(self, noisy_next_obs: Tensor, model_output: Tensor, cs: Conditioners) -> Tensor:
@@ -87,6 +110,30 @@ class Denoiser(nn.Module):
     def denoise(self, noisy_next_obs: Tensor, sigma: Tensor, obs: Tensor, act: Tensor) -> Tensor:
         cs = self.compute_conditioners(sigma)
         model_output = self.compute_model_output(noisy_next_obs, obs, act, cs)
+        denoised = self.wrap_model_output(noisy_next_obs, model_output, cs)
+        return denoised
+
+    @torch.no_grad()
+    def denoise_teacache(
+        self,
+        noisy_next_obs: Tensor,
+        sigma: Tensor,
+        obs: Tensor,
+        act: Tensor,
+        teacache_state: TeaCacheState,
+        step_index: int,
+        num_steps: int,
+    ) -> Tensor:
+        cs = self.compute_conditioners(sigma)
+        model_output = self.compute_model_output_teacache(
+            noisy_next_obs,
+            obs,
+            act,
+            cs,
+            teacache_state=teacache_state,
+            step_index=step_index,
+            num_steps=num_steps,
+        )
         denoised = self.wrap_model_output(noisy_next_obs, model_output, cs)
         return denoised
 

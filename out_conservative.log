@@ -1,0 +1,145 @@
+A.L.E: Arcade Learning Environment (version 0.9.0+750d7f9)
+[Powered by Stella]
+Starting on cuda:0
+/workspace/.venv/lib/python3.10/site-packages/torch/utils/data/sampler.py:65: UserWarning: `data_source` argument is not used and will be removed in 2.2.0.You may still have custom implementation that utilizes it.
+  warnings.warn("`data_source` argument is not used and will be removed in 2.2.0."
+4405955 parameters in denoiser
+5900864 parameters in rew_end_model
+3229637 parameters in actor_critic
+train_dataset: 0 episodes, 0 steps.
+test_dataset: 0 episodes, 0 steps.
+
+Initial collect
+
+Collect train_dataset:   0%|          | 0/100 [00:00<?, ?steps/s]Collect train_dataset:   1%|          | 1/100 [00:00<00:49,  2.02steps/s]Collect train_dataset:  14%|█▍        | 14/100 [00:00<00:02, 30.47steps/s]Collect train_dataset:  27%|██▋       | 27/100 [00:00<00:01, 53.43steps/s]Collect train_dataset:  38%|███▊      | 38/100 [00:00<00:00, 67.23steps/s]Collect train_dataset:  49%|████▉     | 49/100 [00:00<00:00, 75.97steps/s]Collect train_dataset:  59%|█████▉    | 59/100 [00:01<00:00, 80.97steps/s]Collect train_dataset:  69%|██████▉   | 69/100 [00:01<00:00, 84.83steps/s]Collect train_dataset:  79%|███████▉  | 79/100 [00:01<00:00, 88.54steps/s]Collect train_dataset:  89%|████████▉ | 89/100 [00:01<00:00, 90.38steps/s]Collect train_dataset:  99%|█████████▉| 99/100 [00:01<00:00, 91.15steps/s]Collect train_dataset: 100%|██████████| 100/100 [00:01<00:00, 67.56steps/s]
+
+Summary of initial collect:
+Num steps: 100 / 100
+Reward counts: {0.0: 98, 1.0: 2}
+
+Epoch 1 / 1
+
+Training denoiser:   0%|          | 0/1 [00:00<?, ?it/s]/workspace/src/data/episode.py:41: FutureWarning: You are using `torch.load` with `weights_only=False` (the current default value), which uses the default pickle module implicitly. It is possible to construct malicious pickle data which will execute arbitrary code during unpickling (See https://github.com/pytorch/pytorch/blob/main/SECURITY.md#untrusted-models for more details). In a future release, the default value for `weights_only` will be flipped to `True`. This limits the functions that could be executed during unpickling. Arbitrary objects will no longer be allowed to be loaded via this mode unless they are explicitly allowlisted by the user via `torch.serialization.add_safe_globals`. We recommend you start setting `weights_only=True` for any use case where you don't have full control of the loaded file. Please open an issue on GitHub for any issues related to this experimental feature.
+  for k, v in torch.load(Path(path), map_location=map_location).items()
+Training denoiser: 100%|██████████| 1/1 [00:00<00:00,  2.21it/s]Training denoiser: 100%|██████████| 1/1 [00:00<00:00,  2.21it/s]
+Training rew_end_model:   0%|          | 0/1 [00:00<?, ?it/s]Training rew_end_model: 100%|██████████| 1/1 [00:00<00:00,  4.92it/s]Training rew_end_model: 100%|██████████| 1/1 [00:00<00:00,  4.91it/s]
+Training actor_critic:   0%|          | 0/100 [00:00<?, ?it/s]Training actor_critic:   1%|          | 1/100 [00:00<01:38,  1.00it/s]Training actor_critic:   2%|▏         | 2/100 [00:01<01:30,  1.08it/s]Training actor_critic:   3%|▎         | 3/100 [00:02<01:30,  1.07it/s]Training actor_critic:   4%|▍         | 4/100 [00:03<01:29,  1.07it/s]Training actor_critic:   5%|▌         | 5/100 [00:04<01:25,  1.11it/s]Training actor_critic:   6%|▌         | 6/100 [00:05<01:25,  1.11it/s]Training actor_critic:   7%|▋         | 7/100 [00:06<01:22,  1.12it/s]Training actor_critic:   8%|▊         | 8/100 [00:07<01:23,  1.10it/s]Training actor_critic:   9%|▉         | 9/100 [00:08<01:18,  1.16it/s]Training actor_critic:  10%|█         | 10/100 [00:08<01:15,  1.19it/s]Training actor_critic:  11%|█         | 11/100 [00:09<01:12,  1.23it/s]Training actor_critic:  12%|█▏        | 12/100 [00:10<01:10,  1.24it/s]Training actor_critic:  13%|█▎        | 13/100 [00:11<01:09,  1.25it/s]Training actor_critic:  14%|█▍        | 14/100 [00:11<01:06,  1.29it/s]Training actor_critic:  15%|█▌        | 15/100 [00:12<01:05,  1.30it/s]Training actor_critic:  16%|█▌        | 16/100 [00:13<01:03,  1.32it/s]Training actor_critic:  17%|█▋        | 17/100 [00:14<01:02,  1.33it/s]Training actor_critic:  18%|█▊        | 18/100 [00:14<01:02,  1.31it/s]Training actor_critic:  19%|█▉        | 19/100 [00:15<01:06,  1.22it/s]Training actor_critic:  20%|██        | 20/100 [00:16<01:03,  1.26it/s]Training actor_critic:  21%|██        | 21/100 [00:17<01:01,  1.28it/s]Training actor_critic:  22%|██▏       | 22/100 [00:18<01:00,  1.29it/s]Training actor_critic:  23%|██▎       | 23/100 [00:18<00:59,  1.30it/s]Training actor_critic:  24%|██▍       | 24/100 [00:19<00:57,  1.32it/s]Training actor_critic:  25%|██▌       | 25/100 [00:20<00:55,  1.34it/s]Training actor_critic:  26%|██▌       | 26/100 [00:21<00:55,  1.33it/s]Training actor_critic:  27%|██▋       | 27/100 [00:21<00:54,  1.35it/s]Training actor_critic:  28%|██▊       | 28/100 [00:22<00:54,  1.33it/s]Training actor_critic:  29%|██▉       | 29/100 [00:23<00:52,  1.34it/s]Training actor_critic:  30%|███       | 30/100 [00:24<00:55,  1.27it/s]Training actor_critic:  31%|███       | 31/100 [00:24<00:54,  1.27it/s]Training actor_critic:  32%|███▏      | 32/100 [00:25<00:53,  1.28it/s]Training actor_critic:  33%|███▎      | 33/100 [00:26<00:52,  1.28it/s]Training actor_critic:  34%|███▍      | 34/100 [00:27<00:50,  1.30it/s]Training actor_critic:  35%|███▌      | 35/100 [00:28<00:50,  1.30it/s]Training actor_critic:  36%|███▌      | 36/100 [00:28<00:48,  1.31it/s]Training actor_critic:  37%|███▋      | 37/100 [00:29<00:48,  1.29it/s]Training actor_critic:  38%|███▊      | 38/100 [00:30<00:51,  1.21it/s]Training actor_critic:  39%|███▉      | 39/100 [00:31<00:51,  1.19it/s]Training actor_critic:  40%|████      | 40/100 [00:32<00:51,  1.16it/s]Training actor_critic:  41%|████      | 41/100 [00:33<00:50,  1.17it/s]Training actor_critic:  42%|████▏     | 42/100 [00:34<00:50,  1.15it/s]Training actor_critic:  43%|████▎     | 43/100 [00:34<00:48,  1.17it/s]Training actor_critic:  44%|████▍     | 44/100 [00:35<00:48,  1.16it/s]Training actor_critic:  45%|████▌     | 45/100 [00:36<00:47,  1.16it/s]Training actor_critic:  46%|████▌     | 46/100 [00:37<00:47,  1.13it/s]Training actor_critic:  47%|████▋     | 47/100 [00:38<00:48,  1.09it/s]Training actor_critic:  48%|████▊     | 48/100 [00:39<00:45,  1.15it/s]Training actor_critic:  49%|████▉     | 49/100 [00:40<00:44,  1.15it/s]Training actor_critic:  50%|█████     | 50/100 [00:41<00:45,  1.10it/s]Training actor_critic:  51%|█████     | 51/100 [00:42<00:44,  1.09it/s]Training actor_critic:  52%|█████▏    | 52/100 [00:42<00:43,  1.11it/s]Training actor_critic:  53%|█████▎    | 53/100 [00:43<00:41,  1.12it/s]Training actor_critic:  54%|█████▍    | 54/100 [00:44<00:41,  1.12it/s]Training actor_critic:  55%|█████▌    | 55/100 [00:45<00:40,  1.12it/s]Training actor_critic:  56%|█████▌    | 56/100 [00:46<00:39,  1.12it/s]Training actor_critic:  57%|█████▋    | 57/100 [00:47<00:38,  1.13it/s]Training actor_critic:  58%|█████▊    | 58/100 [00:48<00:35,  1.20it/s]Training actor_critic:  59%|█████▉    | 59/100 [00:48<00:32,  1.27it/s]Training actor_critic:  60%|██████    | 60/100 [00:49<00:31,  1.29it/s]Training actor_critic:  61%|██████    | 61/100 [00:50<00:29,  1.30it/s]Training actor_critic:  62%|██████▏   | 62/100 [00:51<00:28,  1.33it/s]Training actor_critic:  63%|██████▎   | 63/100 [00:51<00:27,  1.34it/s]Training actor_critic:  64%|██████▍   | 64/100 [00:52<00:26,  1.34it/s]Training actor_critic:  65%|██████▌   | 65/100 [00:53<00:26,  1.34it/s]Training actor_critic:  66%|██████▌   | 66/100 [00:54<00:25,  1.33it/s]Training actor_critic:  67%|██████▋   | 67/100 [00:54<00:24,  1.35it/s]Training actor_critic:  68%|██████▊   | 68/100 [00:55<00:23,  1.36it/s]Training actor_critic:  69%|██████▉   | 69/100 [00:56<00:22,  1.37it/s]Training actor_critic:  70%|███████   | 70/100 [00:56<00:21,  1.37it/s]Training actor_critic:  71%|███████   | 71/100 [00:57<00:22,  1.26it/s]Training actor_critic:  72%|███████▏  | 72/100 [00:58<00:23,  1.21it/s]Training actor_critic:  73%|███████▎  | 73/100 [00:59<00:22,  1.20it/s]Training actor_critic:  74%|███████▍  | 74/100 [01:00<00:22,  1.18it/s]Training actor_critic:  75%|███████▌  | 75/100 [01:01<00:21,  1.15it/s]Training actor_critic:  76%|███████▌  | 76/100 [01:02<00:20,  1.18it/s]Training actor_critic:  77%|███████▋  | 77/100 [01:02<00:18,  1.22it/s]Training actor_critic:  78%|███████▊  | 78/100 [01:03<00:17,  1.26it/s]Training actor_critic:  79%|███████▉  | 79/100 [01:04<00:16,  1.29it/s]Training actor_critic:  80%|████████  | 80/100 [01:05<00:16,  1.22it/s]Training actor_critic:  81%|████████  | 81/100 [01:06<00:15,  1.20it/s]Training actor_critic:  82%|████████▏ | 82/100 [01:06<00:14,  1.24it/s]Training actor_critic:  83%|████████▎ | 83/100 [01:07<00:13,  1.26it/s]Training actor_critic:  84%|████████▍ | 84/100 [01:08<00:12,  1.29it/s]Training actor_critic:  85%|████████▌ | 85/100 [01:09<00:11,  1.31it/s]Training actor_critic:  86%|████████▌ | 86/100 [01:09<00:10,  1.32it/s]Training actor_critic:  87%|████████▋ | 87/100 [01:10<00:10,  1.28it/s]Training actor_critic:  88%|████████▊ | 88/100 [01:11<00:09,  1.29it/s]Training actor_critic:  89%|████████▉ | 89/100 [01:12<00:08,  1.29it/s]Training actor_critic:  90%|█████████ | 90/100 [01:13<00:07,  1.30it/s]Training actor_critic:  91%|█████████ | 91/100 [01:13<00:06,  1.30it/s]Training actor_critic:  92%|█████████▏| 92/100 [01:14<00:06,  1.29it/s]Training actor_critic:  93%|█████████▎| 93/100 [01:15<00:05,  1.30it/s]Training actor_critic:  94%|█████████▍| 94/100 [01:16<00:04,  1.30it/s]Training actor_critic:  95%|█████████▌| 95/100 [01:16<00:03,  1.31it/s]Training actor_critic:  96%|█████████▌| 96/100 [01:17<00:03,  1.31it/s]Training actor_critic:  97%|█████████▋| 97/100 [01:18<00:02,  1.33it/s]Training actor_critic:  98%|█████████▊| 98/100 [01:19<00:01,  1.33it/s]Training actor_critic:  99%|█████████▉| 99/100 [01:19<00:00,  1.31it/s]Training actor_critic: 100%|██████████| 100/100 [01:20<00:00,  1.32it/s]Training actor_critic: 100%|██████████| 100/100 [01:20<00:00,  1.24it/s]
+  [actor_critic] total 80.66s | diffusion 39.99s (49.6%, 26.66 ms/step over 1500 calls, 3000 denoiser evals) | rew_end 10.30s (12.8%, 6.86 ms/step over 1500 calls) | other 30.37s (37.7%)
+Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:00<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   0%|          | 0/100 [00:01<?, ?eps/s]Collect test_dataset:   1%|          | 1/100 [00:01<00:10,  9.37eps/s]Collect test_dataset:   2%|▏         | 2/100 [00:03<01:55,  1.18s/eps]Collect test_dataset:   3%|▎         | 3/100 [00:06<03:08,  1.94s/eps]Collect test_dataset:   4%|▍         | 4/100 [00:08<03:05,  1.93s/eps]Collect test_dataset:   5%|▌         | 5/100 [00:12<04:04,  2.58s/eps]Collect test_dataset:   6%|▌         | 6/100 [00:13<03:38,  2.32s/eps]Collect test_dataset:   7%|▋         | 7/100 [00:15<03:14,  2.09s/eps]Collect test_dataset:   8%|▊         | 8/100 [00:18<03:30,  2.29s/eps]Collect test_dataset:   9%|▉         | 9/100 [00:20<03:25,  2.26s/eps]Collect test_dataset:  10%|█         | 10/100 [00:22<03:27,  2.30s/eps]Collect test_dataset:  11%|█         | 11/100 [00:25<03:39,  2.46s/eps]Collect test_dataset:  12%|█▏        | 12/100 [00:27<03:31,  2.41s/eps]Collect test_dataset:  13%|█▎        | 13/100 [00:30<03:21,  2.32s/eps]Collect test_dataset:  14%|█▍        | 14/100 [00:32<03:12,  2.24s/eps]Collect test_dataset:  15%|█▌        | 15/100 [00:34<03:01,  2.13s/eps]Collect test_dataset:  16%|█▌        | 16/100 [00:35<02:47,  1.99s/eps]Collect test_dataset:  17%|█▋        | 17/100 [00:38<02:59,  2.16s/eps]Collect test_dataset:  18%|█▊        | 18/100 [00:39<02:41,  1.97s/eps]Collect test_dataset:  19%|█▉        | 19/100 [00:43<03:24,  2.53s/eps]Collect test_dataset:  20%|██        | 20/100 [00:45<03:17,  2.46s/eps]Collect test_dataset:  21%|██        | 21/100 [00:48<03:13,  2.45s/eps]Collect test_dataset:  22%|██▏       | 22/100 [00:49<02:49,  2.18s/eps]Collect test_dataset:  23%|██▎       | 23/100 [00:51<02:32,  1.98s/eps]Collect test_dataset:  24%|██▍       | 24/100 [00:52<02:20,  1.84s/eps]Collect test_dataset:  25%|██▌       | 25/100 [00:55<02:31,  2.02s/eps]Collect test_dataset:  26%|██▌       | 26/100 [00:59<03:15,  2.64s/eps]Collect test_dataset:  27%|██▋       | 27/100 [01:01<02:49,  2.32s/eps]Collect test_dataset:  28%|██▊       | 28/100 [01:03<02:43,  2.27s/eps]Collect test_dataset:  29%|██▉       | 29/100 [01:04<02:29,  2.10s/eps]Collect test_dataset:  30%|███       | 30/100 [01:07<02:44,  2.35s/eps]Collect test_dataset:  31%|███       | 31/100 [01:10<02:44,  2.39s/eps]Collect test_dataset:  32%|███▏      | 32/100 [01:12<02:41,  2.37s/eps]Collect test_dataset:  33%|███▎      | 33/100 [01:14<02:28,  2.21s/eps]Collect test_dataset:  34%|███▍      | 34/100 [01:16<02:16,  2.07s/eps]Collect test_dataset:  35%|███▌      | 35/100 [01:18<02:18,  2.13s/eps]Collect test_dataset:  36%|███▌      | 36/100 [01:20<02:07,  2.00s/eps]Collect test_dataset:  37%|███▋      | 37/100 [01:22<02:03,  1.96s/eps]Collect test_dataset:  38%|███▊      | 38/100 [01:24<02:08,  2.07s/eps]Collect test_dataset:  39%|███▉      | 39/100 [01:26<02:01,  2.00s/eps]Collect test_dataset:  40%|████      | 40/100 [01:28<01:57,  1.96s/eps]Collect test_dataset:  41%|████      | 41/100 [01:30<02:04,  2.11s/eps]Collect test_dataset:  42%|████▏     | 42/100 [01:32<01:51,  1.93s/eps]Collect test_dataset:  43%|████▎     | 43/100 [01:33<01:44,  1.84s/eps]Collect test_dataset:  44%|████▍     | 44/100 [01:36<01:53,  2.02s/eps]Collect test_dataset:  45%|████▌     | 45/100 [01:37<01:44,  1.90s/eps]Collect test_dataset:  46%|████▌     | 46/100 [01:39<01:37,  1.81s/eps]Collect test_dataset:  47%|████▋     | 47/100 [01:40<01:30,  1.71s/eps]Collect test_dataset:  48%|████▊     | 48/100 [01:42<01:28,  1.71s/eps]Collect test_dataset:  49%|████▉     | 49/100 [01:44<01:31,  1.79s/eps]Collect test_dataset:  50%|█████     | 50/100 [01:45<01:24,  1.68s/eps]Collect test_dataset:  51%|█████     | 51/100 [01:47<01:24,  1.72s/eps]Collect test_dataset:  52%|█████▏    | 52/100 [01:50<01:44,  2.18s/eps]Collect test_dataset:  53%|█████▎    | 53/100 [01:52<01:39,  2.12s/eps]Collect test_dataset:  54%|█████▍    | 54/100 [01:54<01:28,  1.93s/eps]Collect test_dataset:  55%|█████▌    | 55/100 [01:56<01:33,  2.09s/eps]Collect test_dataset:  56%|█████▌    | 56/100 [01:59<01:41,  2.30s/eps]Collect test_dataset:  57%|█████▋    | 57/100 [02:01<01:31,  2.12s/eps]Collect test_dataset:  58%|█████▊    | 58/100 [02:04<01:36,  2.31s/eps]Collect test_dataset:  59%|█████▉    | 59/100 [02:05<01:24,  2.05s/eps]Collect test_dataset:  60%|██████    | 60/100 [02:07<01:23,  2.09s/eps]Collect test_dataset:  61%|██████    | 61/100 [02:09<01:14,  1.91s/eps]Collect test_dataset:  62%|██████▏   | 62/100 [02:11<01:14,  1.95s/eps]Collect test_dataset:  63%|██████▎   | 63/100 [02:12<01:08,  1.84s/eps]Collect test_dataset:  64%|██████▍   | 64/100 [02:15<01:11,  1.99s/eps]Collect test_dataset:  65%|██████▌   | 65/100 [02:16<01:04,  1.84s/eps]Collect test_dataset:  66%|██████▌   | 66/100 [02:18<00:59,  1.75s/eps]Collect test_dataset:  67%|██████▋   | 67/100 [02:21<01:16,  2.31s/eps]Collect test_dataset:  68%|██████▊   | 68/100 [02:23<01:07,  2.12s/eps]Collect test_dataset:  69%|██████▉   | 69/100 [02:25<01:00,  1.95s/eps]Collect test_dataset:  70%|███████   | 70/100 [02:27<01:00,  2.01s/eps]Collect test_dataset:  71%|███████   | 71/100 [02:28<00:54,  1.87s/eps]Collect test_dataset:  72%|███████▏  | 72/100 [02:30<00:49,  1.75s/eps]Collect test_dataset:  73%|███████▎  | 73/100 [02:32<00:49,  1.83s/eps]Collect test_dataset:  74%|███████▍  | 74/100 [02:34<00:46,  1.80s/eps]Collect test_dataset:  75%|███████▌  | 75/100 [02:35<00:46,  1.84s/eps]Collect test_dataset:  76%|███████▌  | 76/100 [02:37<00:41,  1.74s/eps]Collect test_dataset:  77%|███████▋  | 77/100 [02:39<00:39,  1.72s/eps]Collect test_dataset:  78%|███████▊  | 78/100 [02:40<00:36,  1.65s/eps]Collect test_dataset:  79%|███████▉  | 79/100 [02:43<00:42,  2.01s/eps]Collect test_dataset:  80%|████████  | 80/100 [02:46<00:43,  2.19s/eps]Collect test_dataset:  81%|████████  | 81/100 [02:48<00:40,  2.13s/eps]Collect test_dataset:  82%|████████▏ | 82/100 [02:50<00:38,  2.12s/eps]Collect test_dataset:  83%|████████▎ | 83/100 [02:52<00:37,  2.19s/eps]Collect test_dataset:  84%|████████▍ | 84/100 [02:54<00:34,  2.13s/eps]Collect test_dataset:  85%|████████▌ | 85/100 [02:56<00:30,  2.02s/eps]Collect test_dataset:  86%|████████▌ | 86/100 [02:57<00:26,  1.91s/eps]Collect test_dataset:  87%|████████▋ | 87/100 [02:59<00:23,  1.80s/eps]Collect test_dataset:  88%|████████▊ | 88/100 [03:02<00:27,  2.29s/eps]Collect test_dataset:  89%|████████▉ | 89/100 [03:05<00:27,  2.49s/eps]Collect test_dataset:  90%|█████████ | 90/100 [03:07<00:21,  2.19s/eps]Collect test_dataset:  91%|█████████ | 91/100 [03:09<00:20,  2.29s/eps]Collect test_dataset:  92%|█████████▏| 92/100 [03:12<00:19,  2.45s/eps]Collect test_dataset:  93%|█████████▎| 93/100 [03:14<00:16,  2.37s/eps]Collect test_dataset:  94%|█████████▍| 94/100 [03:16<00:12,  2.12s/eps]Collect test_dataset:  95%|█████████▌| 95/100 [03:17<00:09,  1.92s/eps]Collect test_dataset:  96%|█████████▌| 96/100 [03:19<00:07,  1.89s/eps]Collect test_dataset:  97%|█████████▋| 97/100 [03:22<00:06,  2.06s/eps]Collect test_dataset:  98%|█████████▊| 98/100 [03:23<00:03,  1.93s/eps]Collect test_dataset:  99%|█████████▉| 99/100 [03:25<00:01,  1.81s/eps]Collect test_dataset: 100%|██████████| 100/100 [03:26<00:00,  1.73s/eps]Collect test_dataset: 100%|██████████| 100/100 [03:26<00:00,  2.07s/eps]
+
+Summary of final collect: 100 episodes (18274 steps)
+  Episode 0: return = 0.0 length = 138
+  Episode 1: return = 1.0 length = 175
+  Episode 2: return = 3.0 length = 261
+  Episode 3: return = 1.0 length = 165
+  Episode 4: return = 4.0 length = 340
+  Episode 5: return = 1.0 length = 157
+  Episode 6: return = 0.0 length = 143
+  Episode 7: return = 3.0 length = 238
+  Episode 8: return = 2.0 length = 198
+  Episode 9: return = 2.0 length = 207
+  Episode 10: return = 3.0 length = 254
+  Episode 11: return = 2.0 length = 204
+  Episode 12: return = 2.0 length = 189
+  Episode 13: return = 2.0 length = 186
+  Episode 14: return = 1.0 length = 166
+  Episode 15: return = 0.0 length = 148
+  Episode 16: return = 3.0 length = 228
+  Episode 17: return = 0.0 length = 138
+  Episode 18: return = 4.0 length = 334
+  Episode 19: return = 2.0 length = 210
+  Episode 20: return = 2.0 length = 216
+  Episode 21: return = 0.0 length = 139
+  Episode 22: return = 0.0 length = 138
+  Episode 23: return = 0.0 length = 128
+  Episode 24: return = 2.0 length = 208
+  Episode 25: return = 5.0 length = 364
+  Episode 26: return = 0.0 length = 137
+  Episode 27: return = 1.0 length = 192
+  Episode 28: return = 0.0 length = 145
+  Episode 29: return = 2.0 length = 251
+  Episode 30: return = 2.0 length = 214
+  Episode 31: return = 2.0 length = 194
+  Episode 32: return = 1.0 length = 158
+  Episode 33: return = 0.0 length = 153
+  Episode 34: return = 2.0 length = 204
+  Episode 35: return = 0.0 length = 144
+  Episode 36: return = 1.0 length = 168
+  Episode 37: return = 2.0 length = 211
+  Episode 38: return = 1.0 length = 164
+  Episode 39: return = 1.0 length = 171
+  Episode 40: return = 2.0 length = 224
+  Episode 41: return = 0.0 length = 131
+  Episode 42: return = 0.0 length = 143
+  Episode 43: return = 2.0 length = 220
+  Episode 44: return = 0.0 length = 135
+  Episode 45: return = 0.0 length = 138
+  Episode 46: return = 0.0 length = 133
+  Episode 47: return = 0.0 length = 148
+  Episode 48: return = 1.0 length = 173
+  Episode 49: return = 0.0 length = 127
+  Episode 50: return = 1.0 length = 162
+  Episode 51: return = 3.0 length = 285
+  Episode 52: return = 1.0 length = 175
+  Episode 53: return = 0.0 length = 135
+  Episode 54: return = 2.0 length = 224
+  Episode 55: return = 3.0 length = 243
+  Episode 56: return = 0.0 length = 146
+  Episode 57: return = 2.0 length = 238
+  Episode 58: return = 0.0 length = 137
+  Episode 59: return = 1.0 length = 196
+  Episode 60: return = 0.0 length = 129
+  Episode 61: return = 1.0 length = 183
+  Episode 62: return = 0.0 length = 137
+  Episode 63: return = 2.0 length = 211
+  Episode 64: return = 0.0 length = 131
+  Episode 65: return = 0.0 length = 138
+  Episode 66: return = 4.0 length = 323
+  Episode 67: return = 0.0 length = 147
+  Episode 68: return = 0.0 length = 140
+  Episode 69: return = 1.0 length = 188
+  Episode 70: return = 0.0 length = 136
+  Episode 71: return = 0.0 length = 131
+  Episode 72: return = 1.0 length = 180
+  Episode 73: return = 1.0 length = 157
+  Episode 74: return = 1.0 length = 176
+  Episode 75: return = 0.0 length = 137
+  Episode 76: return = 0.0 length = 144
+  Episode 77: return = 0.0 length = 130
+  Episode 78: return = 3.0 length = 257
+  Episode 79: return = 3.0 length = 235
+  Episode 80: return = 1.0 length = 172
+  Episode 81: return = 1.0 length = 182
+  Episode 82: return = 1.0 length = 201
+  Episode 83: return = 1.0 length = 172
+  Episode 84: return = 0.0 length = 155
+  Episode 85: return = 0.0 length = 147
+  Episode 86: return = 0.0 length = 140
+  Episode 87: return = 4.0 length = 305
+  Episode 88: return = 3.0 length = 263
+  Episode 89: return = 0.0 length = 126
+  Episode 90: return = 2.0 length = 220
+  Episode 91: return = 2.0 length = 246
+  Episode 92: return = 1.0 length = 190
+  Episode 93: return = 0.0 length = 131
+  Episode 94: return = 0.0 length = 131
+  Episode 95: return = 1.0 length = 164
+  Episode 96: return = 2.0 length = 217
+  Episode 97: return = 0.0 length = 139
+  Episode 98: return = 0.0 length = 137
+  Episode 99: return = 0.0 length = 135
+
+{'final_return_mean': 1.14, 'final_return_std': 1.2167168939404105}
+
+Metrics summary
+  actor_critic_total_s : 80.66
+  diffusion_total_s    : 39.99
+  diffusion_pct        : 49.6
+  diffusion_ms_per_step: 26.66
+  denoiser_evals       : 3000
+  denoiser_evals/call  : 2.00
+  diffusion_ms/eval    : 13.33
+  final_return_mean    : 1.1400
+  final_return_std     : 1.2167
+  fvd                  : N/A
+  fvd_status           : not_implemented: this repository does not currently collect real/world-model videos or compute I3D-based FVD.

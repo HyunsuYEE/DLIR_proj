@@ -55,6 +55,7 @@ class ActorCritic(nn.Module):
 
         self.env_loop = None
         self.loss_cfg = None
+        self.rl_env = None
 
     @property
     def device(self) -> torch.device:
@@ -64,6 +65,7 @@ class ActorCritic(nn.Module):
         assert self.env_loop is None and self.loss_cfg is None
         self.env_loop = make_env_loop(rl_env, self)
         self.loss_cfg = loss_cfg
+        self.rl_env = rl_env
 
     def predict_act_value(self, obs: Tensor, hx_cx: Tuple[Tensor, Tensor]) -> ActorCriticOutput:
         assert obs.ndim == 4
@@ -94,6 +96,9 @@ class ActorCritic(nn.Module):
             "loss_values": loss_values.detach(),
             "loss_total": loss.detach(),
         }
+
+        if self.rl_env is not None and hasattr(self.rl_env, "pop_timing_stats"):
+            metrics.update(self.rl_env.pop_timing_stats())
 
         return loss, metrics
 
